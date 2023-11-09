@@ -1,0 +1,55 @@
+\documentclass[\string~/GitHub/sthlmNordBeamerTheme/sthlmNordLightDemo.tex]{subfiles}
+
+\begin{document}
+%   FRAME START   -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Numerical Method}{2D Incompressible Fluid Dynamics}
+
+	\prob The governing equations for imcompressible fluid consist of Navier-Stokes (momentum) equation and the continuity equation such that, in general coordinate system: \begin{align}
+        \frac{\partial u_i}{\partial t} &= -\frac{\partial }{\partial x_j} u_i u_j + \frac{1}{\mathcal{Re}} \frac{\partial^2 u_i}{\partial x_i \partial x_j} - \frac{\partial P}{\partial x_i} \label{eq:flow-mome} \\
+        \frac{\partial u_i}{\partial x_i} &= 0 \label{eq:flow-cont}
+    \end{align}
+
+    \begin{alertblock}{Boundary Condition}
+        \begin{center}
+            Eqs. (\ref{eq:flow-mome}) and (\ref{eq:flow-cont}) are non-dimenstionalized by a characteristic length and velocity scale.
+        \end{center}
+    \end{alertblock}
+
+    \framebreak
+            
+    Consider a two dimensional problem in Cartesian coordinate system, let us denote $u$ and $v$ so that they are velocity components in, respectively, x- and y-direction. Then the Navier-Stokes equation become: \begin{align}
+        \frac{\partial u}{\partial t} &= - \left( \frac{\partial }{\partial x} u u + \frac{\partial }{\partial y} u v \right) + \frac{1}{\mathcal{Re}} \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right) - \frac{\partial P_x}{\partial x} \\
+        \frac{\partial v}{\partial t} &= - \left( \frac{\partial }{\partial x} v u + \frac{\partial }{\partial y} v v \right) + \frac{1}{\mathcal{Re}} \left( \frac{\partial^2 v}{\partial x^2} + \frac{\partial^2 v}{\partial y^2} \right) - \frac{\partial P_y}{\partial y}
+    \end{align}
+
+    And the Continuity equation is as follow: \begin{equation}
+        \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} = 0
+    \end{equation}
+
+    \framebreak
+
+    \soln In developing a solution for the 3D Incompressible Fluid Modeling Problem, we use a scheme called:
+    
+    \begin{block}{}
+        \begin{center}
+            KM (Kim and Moin) Method with LM (Le and Moin) Modification.
+        \end{center}
+    \end{block}
+
+    \vspace{1em}
+    
+    \begin{center}
+        \large{The full paper can be found at:} \\
+        \url{https://doi.org/10.1016/0021-9991(85)90148-2}\\
+        \url{https://doi.org/10.1016/0021-9991(91)90215-7}
+                
+        %\begin{figure}
+        %    \centerline{\includegraphics[width=0.1\textwidth]{assets/elsevier}}
+        %    \caption{Hosted on Elsevier}
+        %\end{figure}
+        
+    \end{center}
+            
+\end{frame}
+%   FRAME END   --==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\end{document}

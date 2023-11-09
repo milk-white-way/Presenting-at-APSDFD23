@@ -1,0 +1,55 @@
+\documentclass[\string~/GitHub/sthlmNordBeamerTheme/sthlmNordLightDemo.tex]{subfiles}
+
+\begin{document}
+%   FRAME START   --==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{LM Mod to KM Scheme}{Construction}
+    The modification from Le and Moin is such that before the application of the fractional step method, a three-step advancement scheme is used in the discretization of Eq. (\ref{eq:flow-mome}):
+
+    \begin{align}
+        \frac{u^k - u^{k-1}}{\Delta t} &= \alpha_k L \left( u^{k-1} \right) + \beta_k L \left( u^k \right) - \gamma_k N \left( u^{k-1} \right) - \zeta_k N \left( u^{k-2} \right) - (\alpha_k + \beta_k) \frac{\delta P^k_x}{\delta x} \\
+        \frac{v^k - v^{k-1}}{\Delta t} &= \alpha_k L \left( v^{k-1} \right) + \beta_k L \left( v^k \right) - \gamma_k N \left( v^{k-1} \right) - \zeta_k N \left( v^{k-2} \right) - (\alpha_k + \beta_k) \frac{\delta P^k_y}{\delta y}
+    \end{align}
+    where: \begin{itemize}
+        \item $k = 1, 2, 3$ denote the sub-step ($k-2$ is ignored for $k=1$);
+        \item $u^0_i$ and $u^3_i$ are the velocities at time step $n$ and $n+1$; and
+        \item $\frac{\delta }{\delta x_i}$ is the finite difference operator.
+    \end{itemize}
+
+    \framebreak
+    
+    $L(u_i)$ represent second-order finite difference approximation to the viscous terms, such that: \begin{equation}
+        L (u_i) = \frac{1}{\mathcal{Re}} \frac{\partial^2 u_i}{\partial x_j \partial x_j}
+        \label{eq:viscous_terms}
+    \end{equation}
+
+    Meanwhile, $N(u_i)$ represent second-order finite difference approximation to the convective terms, such that: \begin{equation}
+        N (u_i) = \frac{\partial }{\partial x_j} u_i u_j
+        \label{eq:convective_terms}
+    \end{equation}
+
+    \framebreak
+
+    $\alpha_k$, $\beta_k$, $\gamma_k$, and $\zeta_k$ are constant coefficients. In general, \begin{equation}
+        \sum_{k=1}^{3} (\alpha_k + \beta_k) = \sum_{k=1}^{3} (\gamma_k + \zeta_k) = 1
+    \end{equation} 
+
+    For the LM algorithm, the constant coefficients are chosen as:
+    \begin{center}
+        \renewcommand{\arraystretch}{1.8}
+        \begin{tabular}{||c||c | c | c | c||} 
+            \hline
+            k & $\alpha$ & $\beta$ & $\gamma$ & $\zeta$ \\ [0.5ex] 
+            \hline\hline
+            1 & \multicolumn{2}{c|}{$\frac{4}{15}$} & $\frac{8}{15}$ & 0 \\ 
+            \hline
+            2 & \multicolumn{2}{c|}{$\frac{1}{15}$} & $\frac{5}{12}$ & $\frac{-17}{60}$ \\
+            \hline
+            3 & \multicolumn{2}{c|}{$\frac{1}{6}$} & $\frac{3}{4}$ & $\frac{-5}{12}$ \\
+            \hline
+        \end{tabular}
+        \renewcommand{\arraystretch}{1}
+    \end{center}
+    
+\end{frame}
+%   FRAME END   --==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\end{document}

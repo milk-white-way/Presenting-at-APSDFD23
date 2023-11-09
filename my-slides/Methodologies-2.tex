@@ -1,0 +1,20 @@
+\documentclass[\string~/GitHub/sthlmNordBeamerTheme/sthlmNordLightDemo.tex]{subfiles}
+
+\begin{document}
+%   FRAME START   -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{LM Mod to KM Scheme}{Features}
+    
+    The changes in Le and Moin modification includes:
+    \begin{itemize}
+        \item Each time step is advanced in three sub-steps.
+        \item Velocity field is advanced through a sub-step without the need to satisfy the continuity equation.
+        \item The Poisson equation is used to project the predicted vector field into a divergence-free velocity field only at the final sub-step.
+        \item Boundary conditions for the intermediate velocity field are derived using the method similar to that of LeVeque and Oliger.
+        \item The method is implemented for a staggered grid.
+    \end{itemize}
+    
+    \remarks The modification has been proved to saved 49\% CPU time in comparison to the original KM scheme in a flow over backward-facing step benchmark test.
+    
+\end{frame}
+%   FRAME END   --==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\end{document}

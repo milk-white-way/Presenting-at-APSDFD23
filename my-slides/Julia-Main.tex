@@ -1,0 +1,155 @@
+\documentclass[\string~/GitHub/sthlmNordBeamerTheme/sthlmNordLightDemo.tex]{subfiles}
+
+\begin{document}
+%   FRAME START   -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Julian Solver}{Packages}
+
+	\begin{center}
+        \begin{minted}[linenos, breaklines, fontfamily=helvetica, fontsize=\scriptsize]{julia}
+            ## Turn these lines on at the first runtime:
+            #using Pkg
+            #Pkg.add("LinearAgebra")
+            #Pkg.add("SparseArrays")
+            #Pkg.add("Printf")
+            #Pkg.add("TickTock")
+            #Pkg.add("DelimitedFiles")
+            #Pkg.add("Debugger")
+            #Pkg.add("Makie")
+            
+            using LinearAlgebra
+            using SparseArrays
+            using Printf
+            using TickTock
+            using DelimitedFiles
+            using Debugger
+            using Makie
+        \end{minted}
+    \end{center}
+
+\end{frame}
+%   FRAME END   --==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%   FRAME START   -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Julian Solver}{Constants and Variables}
+    
+    \begin{center}
+        \begin{minted}[linenos, breaklines, fontfamily=helvetica, fontsize=\tiny]{julia}
+            ## SCHEME CONSTANTS
+            const NK_MAX_ITERATION = 100
+            const NK_TOLERANCE = 1.0e-5
+            const RK_MAX_ITERATION = 20
+            const RK_TOLERANCE = 1.0e-7
+
+            ## PROBLEM CONSTANTS
+            const SYS2D_LENGTH_X = 1.0
+            const SYS2D_LENGTH_Y = 1.0
+            const SYS2D_DIM_X = 61 
+            const SYS2D_DIM_Y = 61
+            const SYS2D_GHOST_X = SYS2D_DIM_X + 2
+            const SYS2D_GHOST_Y = SYS2D_DIM_Y + 2
+            const SYS2D_STEP_X = SYS2D_LENGTH_X / (SYS2D_DIM_X - 1)
+            const SYS2D_STEP_Y = SYS2D_LENGTH_Y / (SYS2D_DIM_Y - 1)
+            const STEP_TIME = 0.008
+            const ENDO_TIME = 4000 # seconds
+            const REN_NUM = 100
+            const DYN_VIS = 1
+            const CONVECTIVE_COEFFICIENT = 0.128 # 1/8
+            const OUTPUT_FREQUENCY = 2000
+        \end{minted}
+    \end{center}
+		
+	\framebreak
+ 
+    \begin{center}
+        \begin{minted}[linenos, breaklines, fontfamily=helvetica, fontsize=\tiny]{julia}
+            ## Creating solution structure:
+            mutable struct Solution2D
+            length_x::Float64
+            length_y::Float64
+            m2::UInt64
+            n2::UInt64
+            dx::Float64
+            dy::Float64
+            dt::Float64
+            et::Float64
+            ren::UInt64
+            vis::Float64
+
+            ucat_x::Matrix{Float64}
+            ucat_y::Matrix{Float64}
+            ucur_x::Matrix{Float64}
+            ucur_y::Matrix{Float64}
+            ubcs_x::Matrix{Float64}
+            ubcs_y::Matrix{Float64}
+            uint_x::Matrix{Float64}
+            uint_y::Matrix{Float64}
+            pres::Matrix{Float64}
+            du_x::Matrix{Float64}
+            du_y::Matrix{Float64}
+            end
+        \end{minted}
+    \end{center}
+    
+\end{frame}
+%   FRAME END   --==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%   FRAME START   -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Julian Solver}{Initialization}
+
+    \begin{center}
+        \begin{minted}[linenos, breaklines, fontfamily=helvetica, fontsize=\scriptsize]{julia}
+            ## Apply zero initialization
+            for ii = 1:SYS2D_GHOST_X
+                for jj = 1:SYS2D_GHOST_Y
+                    Ucat_x[ii, jj] = 0
+                    Ucat_y[ii, jj] = 0
+                    Ucur_x[ii, jj] = 0
+                    Ucur_y[ii, jj] = 0
+                    Ubcs_x[ii, jj] = 0
+                    Ubcs_y[ii, jj] = 0
+                    Uint_x[ii, jj] = 0
+                    Uint_y[ii, jj] = 0
+                    Pres[ii, jj] = 0
+                    dU_x[ii, jj] = 0
+                    dU_y[ii, jj] = 0
+                end
+            end         
+        \end{minted}
+    \end{center}
+    
+\end{frame}
+%   FRAME END   --==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%   FRAME START   -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Julian Solver}{Call Sequence}
+
+    \begin{center}
+        \begin{minted}[linenos, breaklines, fontfamily=helvetica, fontsize=\tiny]{julia}
+            while ( current_time < CSolution.et )
+                @printf("Time step: %d \n", timestep)
+                global current_time = timestep*CSolution.dt
+                
+                let du_x = deepcopy(CSolution.du_x)
+                du_y = deepcopy(CSolution.du_y)
+                u_pre_x = deepcopy(CSolution.ucur_x)
+                u_pre_y = deepcopy(CSolution.ucur_y)
+
+                Momentum.runge_kutta(CSolution, RK_MAX_ITERATION, RK_TOLERANCE, CONVECTIVE_COEFFICIENT)
+                phi = Continuity.poisson_solv(CSolution)
+                Updater.solv_update(CSolution, phi)
+
+                u_new_x = deepcopy(CSolution.ucur_x)
+                u_new_y = deepcopy(CSolution.ucur_y)
+
+                global CSolution.du_x = u_new_x - u_pre_x
+                global CSolution.du_y = u_new_y - u_pre_y
+            end
+
+            FormBCS.form_bcs(CSolution)
+            global timestep += 1
+        \end{minted}
+    \end{center}
+    
+\end{frame}
+%   FRAME END   --==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\end{document}

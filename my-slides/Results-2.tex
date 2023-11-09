@@ -1,0 +1,46 @@
+\documentclass[\string~/GitHub/sthlmNordBeamerTheme/sthlmNordLightDemo.tex]{subfiles}
+
+\begin{document}
+%   FRAME START   -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Completed Module 2}{Heat Equation Simple}
+
+	\prob This series solve the heat equation:
+            \begin{equation}
+                \frac{\partial \Phi}{\partial t} = \nabla^2 \Phi
+                \label{eq:heateq}
+            \end{equation}
+        
+            \begin{exampleblock}{Initial Condition}
+                \[
+                    \Phi(\Vec{r}) = 1 + e^{-r^2}
+                \]
+            \end{exampleblock}
+
+            \begin{alertblock}{Boundary Condition}
+                \begin{center}
+                    Periodic    
+                \end{center}
+            \end{alertblock}
+
+        \framebreak
+
+        \soln A temporal discretization scheme can be used such that:
+            \begin{equation}
+                \frac{\partial \Phi}{\partial t} = \frac{\Phi^{n+1}_{i, \; j} - \Phi^{n}_{i, \; j}}{\Delta t}
+                \label{eq:heat_temp_discr_scheme}
+            \end{equation}
+
+            Then, we spatially discretize the PDE by first constructing negative fluxes on cell faces, e.g:
+            \begin{equation}
+                F^{n}_{i+\frac{1}{2}, \; j} = \frac{\Phi^{n}_{i+1, \; j} - \Phi^{n}_{i, \; j}}{\Delta x}
+                \label{eq:heat_spat_discr_scheme}
+            \end{equation}
+
+            Substituting Eq. (\ref{eq:heat_temp_discr_scheme}) and Eq. (\ref{eq:heat_spat_discr_scheme}) into the heat equation (\ref{eq:heateq}), one can write the 2D update scheme as follow:
+            \begin{equation}
+                \Phi^{n+1}_{i, \; j} = \Phi^{n}_{i, \; j} + \frac{\Delta t}{\Delta x} \left( F^{n}_{i+\frac{1}{2}, \; j} - F^{n}_{i-\frac{1}{2}, \; j} \right) + \frac{\Delta t}{\Delta y} \left( F^{n}_{i, \; j+\frac{1}{2}} - F^{n}_{i, \; j-\frac{1}{2}} \right)
+            \end{equation}
+
+\end{frame}
+%   FRAME END   --==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\end{document}
