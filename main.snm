@@ -2,3 +2,7 @@
 \beamer@slide {eq:flow-cont}{5}
 \beamer@slide {eq:viscous_terms}{5}
 \beamer@slide {eq:convective_terms}{5}
+\beamer@slide {eq:discritization}{5}
+\beamer@slide {eq:my_scheme_1st_advance_step}{5}
+\beamer@slide {eq:my_scheme_2st_advance_step}{5}
+\beamer@slide {eq:phi_poisson}{5}

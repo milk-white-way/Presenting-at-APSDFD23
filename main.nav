@@ -42,18 +42,22 @@
 \headcommand {\beamer@framepages {5}{12}}
 \headcommand {\slideentry {4}{0}{2}{5/13}{}{0}}
 \headcommand {\beamer@framepages {5}{13}}
-\headcommand {\slideentry {4}{0}{3}{14/14}{}{0}}
-\headcommand {\beamer@framepages {14}{14}}
-\headcommand {\slideentry {4}{0}{3}{14/15}{}{0}}
-\headcommand {\beamer@framepages {14}{15}}
-\headcommand {\slideentry {4}{0}{4}{16/16}{}{0}}
+\headcommand {\slideentry {4}{0}{2}{5/14}{}{0}}
+\headcommand {\beamer@framepages {5}{14}}
+\headcommand {\slideentry {4}{0}{2}{5/15}{}{0}}
+\headcommand {\beamer@framepages {5}{15}}
+\headcommand {\slideentry {4}{0}{3}{16/16}{}{0}}
 \headcommand {\beamer@framepages {16}{16}}
-\headcommand {\slideentry {4}{0}{5}{17/17}{}{0}}
-\headcommand {\beamer@framepages {17}{17}}
-\headcommand {\slideentry {4}{0}{6}{18/18}{}{0}}
+\headcommand {\slideentry {4}{0}{3}{16/17}{}{0}}
+\headcommand {\beamer@framepages {16}{17}}
+\headcommand {\slideentry {4}{0}{4}{18/18}{}{0}}
 \headcommand {\beamer@framepages {18}{18}}
-\headcommand {\beamer@partpages {1}{18}}
-\headcommand {\beamer@subsectionpages {4}{18}}
-\headcommand {\beamer@sectionpages {4}{18}}
-\headcommand {\beamer@documentpages {18}}
-\headcommand {\gdef \inserttotalframenumber {18}}
+\headcommand {\slideentry {4}{0}{5}{19/19}{}{0}}
+\headcommand {\beamer@framepages {19}{19}}
+\headcommand {\slideentry {4}{0}{6}{20/20}{}{0}}
+\headcommand {\beamer@framepages {20}{20}}
+\headcommand {\beamer@partpages {1}{20}}
+\headcommand {\beamer@subsectionpages {4}{20}}
+\headcommand {\beamer@sectionpages {4}{20}}
+\headcommand {\beamer@documentpages {20}}
+\headcommand {\gdef \inserttotalframenumber {20}}
