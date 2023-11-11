@@ -1,0 +1,364 @@
+\documentclass{beamer}
+
+\usetheme{simple}
+
+\usepackage{lmodern}
+\usepackage[scale=2]{ccicons}
+
+% ADDITIONAL PACKAGES
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{bbding}
+\let\oldSquare\Square % defined also in wasysym
+\usepackage{wasysym}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
+\newcommand{\timestep}{ \triangle t }
+\newcommand{\ren}{ \text{Re} }
+
+% Watermark background (simple theme)
+
+\setwatermark[voffset=2cm]{\includegraphics[height=5cm]{img/watermark}}
+
+% Guide on tick box:
+% items below belong to 'itemize' class
+%\item[\CheckedBox] Done.
+%\item[$\XBox$]  Failed.
+%\item[\Square] On going.
+
+\title{A hybrid staggered/non-staggered formulation}
+\subtitle{For incompressible flows with block-structured mesh refinement}
+\date{\today}
+\author{Tam T. Nguyen*, Trung B. Le*, Andy J. Nonaka**}
+\institute{*North Dakota State University \\
+			**Lawrence Berkeley National Laboratory}
+%\institute{\url{https://github.com/milk-white-way/AMRESSIF}}
+
+\begin{document}
+
+\maketitle
+
+% |================================================================================================|
+% |                                       Frame starts                                             |
+% |================================================================================================|
+\begin{frame}{Outlines}
+	\tableofcontents
+\end{frame}
+
+\begin{frame}[fragile]{To-do List}
+	\framesubtitle{For tracking progress and comments}
+  \begin{itemize}
+  	\item[\CheckedBox] Debugging the code.
+  	\item[$\XBox$] Finish Wall Boundary Conditions feature. (HOLD)
+  	\item[\Square] Benchmark the code.
+  		\begin{itemize}
+  			\item[\Square] Running 6 benchmark cases.
+  			\item[\CheckedBox] Fix L2-Norm.
+  			\item[\Square] Generate solution comparison at horizontal and vertical middle lines.
+  			\begin{itemize}
+  				\item When running on one processor, the code prints out the solution. When running on multiple MPI processors, it does NOT.
+  			\end{itemize}
+  		\end{itemize} 
+  	\item[\Square] Prepare Beamer for presentation.
+  	\item[\Square] Present at APS DFD 2023 on Nov 19th.
+  \end{itemize}
+
+\end{frame}
+% |================================================================================================|
+% |                                        Frame ends                                              |
+% |================================================================================================|
+
+
+%\setwatermark[voffset=-0.5cm]{\fontsize{64pt}{64pt}\selectfont{Introduction}}
+
+% For TOC only
+\section{Introduction}
+\section{Methodology}
+\subsection{Method 1}
+\subsection{Method 2}
+\subsection{Method 3}
+\section{Results and Discussion}
+\section*{References}
+
+% |================================================================================================|
+% |                                       Frame starts                                             |
+% |================================================================================================|
+\begin{frame}{Introduction}
+  \framesubtitle{Feature list}
+  
+  This is \emph{an important text}.\\
+  This is an \alert{alert text}.
+
+\end{frame}
+% |================================================================================================|
+% |                                        Frame ends                                              |
+% |================================================================================================|
+
+% |================================================================================================|
+% |                                       Frame starts                                             |
+% |================================================================================================|
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Methodology}
+	The governing equations for imcompressible fluid consist of Navier-Stokes (momentum) equation and the continuity equation such that, in general coordinate system: \begin{align}
+		\frac{\partial u_i}{\partial t} &= -\frac{\partial }{\partial x_j} u_i u_j + \frac{1}{\ren} \frac{\partial^2 u_i}{\partial x_i \partial x_j} - \frac{\partial P}{\partial x_i} \label{eq:flow-mome} \\
+		\frac{\partial u_i}{\partial x_i} &= 0 \label{eq:flow-cont}
+	\end{align}
+	
+	where: $\text{Re}$ is the Reynolds number defined as:
+	\begin{equation}
+		\text{Re} = \frac{UL}{\nu}
+	\end{equation}
+	
+	\begin{block}{Dimensionless Equations}
+		\begin{center}
+			Eqs. (\ref{eq:flow-mome}) and (\ref{eq:flow-cont}) are non-dimenstionalized by a characteristic length $L$ and velocity scale $U$.
+		\end{center}
+	\end{block}
+	
+	\framebreak
+	
+	Consider a two dimensional problem in Cartesian coordinate system, let us denote $u$ and $v$ so that they are velocity components in, respectively, x- and y-direction. Then the Navier-Stokes equation become: \begin{align}
+		\frac{\partial u}{\partial t} &= - \left( \frac{\partial }{\partial x} u u + \frac{\partial }{\partial y} u v \right) + \frac{1}{\ren} \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right) - \frac{\partial P_x}{\partial x} \\
+		\frac{\partial v}{\partial t} &= - \left( \frac{\partial }{\partial x} v u + \frac{\partial }{\partial y} v v \right) + \frac{1}{\ren} \left( \frac{\partial^2 v}{\partial x^2} + \frac{\partial^2 v}{\partial y^2} \right) - \frac{\partial P_y}{\partial y}
+	\end{align}
+	
+	And the Continuity equation is as follow: \begin{equation}
+		\frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} = 0
+	\end{equation}
+	
+	\framebreak
+	
+	From Kim and Moin:
+	\begin{quote}
+		The fractional step, or time-split method, is in general a method of approximation of the evolution equations based on decomposition of the operators they contain. In application to the Navier-Stokes governing equations, one can interpret the role of pressure in the momentum equation equations as a projection operator which projects an arbitrary vector field into a divergence-free velocity field.
+	\end{quote}
+	
+	\begin{align}
+		\frac{\hat{u}_i - u_i^n}{\timestep} &= \frac{1}{2} \left[3 H_i^n - H_i^{n-1}\right] + \frac{1}{2} \frac{1}{\ren} \left[ \frac{\delta^2}{\delta x_1^2} + \frac{\delta^2}{\delta x_2^2} + \frac{\delta^2}{\delta x_3^2} \right] (\hat{u}_i + u_i^n) \\
+		\frac{u_i^{n+1} -\hat{u}_i}{\timestep} &= -G(\phi^{n+1})
+	\end{align}
+	
+	\framebreak
+	
+	From Le and Moin:
+	\begin{quote}
+		The modification has been proved to saved 49\% CPU time in comparison to the original KM scheme in a flow over backward-facing step benchmark test.
+	\end{quote}
+	
+	\begin{itemize}
+		\item Each time step is advanced in three sub-steps.
+		\item Velocity field is advanced through a sub-step without the need to satisfy the continuity equation.
+		\item The Poisson equation is used to project the predicted vector field into a divergence-free velocity field only at the final sub-step.
+		\item Boundary conditions for the intermediate velocity field are derived using the method similar to that of LeVeque and Oliger.
+		\item The method is implemented for a staggered grid.
+	\end{itemize}
+	
+	\framebreak 
+	
+	\begin{align*}
+		\frac{u^k - u^{k-1}}{\Delta t} &= \alpha_k L \left( u^{k-1} \right) + \beta_k L \left( u^k \right) \\
+		&- \gamma_k N \left( u^{k-1} \right) - \zeta_k N \left( u^{k-2} \right) - (\alpha_k + \beta_k) \frac{\delta P^k_x}{\delta x} \\
+		\frac{v^k - v^{k-1}}{\Delta t} &= \alpha_k L \left( v^{k-1} \right) + \beta_k L \left( v^k \right) \\
+		&- \gamma_k N \left( v^{k-1} \right) - \zeta_k N \left( v^{k-2} \right) - (\alpha_k + \beta_k) \frac{\delta P^k_y}{\delta y}
+	\end{align*}
+	where: \begin{itemize}
+		\item $k = 1, 2, 3$ denote the sub-step ($k-2$ is ignored for $k=1$);
+		\item $u^0_i$ and $u^3_i$ are the velocities at time step $n$ and $n+1$; and
+		\item $\frac{\delta }{\delta x_i}$ is the finite difference operator.
+	\end{itemize}
+	
+	\framebreak
+	
+	\begin{block}{}
+		Equation dump:
+	\end{block}
+	
+	$L(u_i)$ represents second-order finite difference approximation to the viscous terms, such that: \begin{equation}
+		L (u_i) = \frac{1}{\text{Re}} \frac{\partial^2 u_i}{\partial x_j \partial x_j}
+		\label{eq:viscous_terms}
+	\end{equation}
+	
+	Meanwhile, $N(u_i)$ represents second-order finite difference approximation to the convective terms, such that: \begin{equation}
+		N (u_i) = \frac{\partial }{\partial x_j} u_i u_j
+		\label{eq:convective_terms}
+	\end{equation}
+	
+	From Eq.(\ref{eq:flow-mome}), at an abitrary step $n$ in which time $t_n + \timestep$:
+	\begin{equation}
+		\frac{\partial u_i^n}{\partial t} = -\frac{\partial }{\partial x_j} u_i^n u_j^n + \frac{1}{\text{Re}} \frac{\partial^2 u_i^n}{\partial x_i \partial x_j} - \frac{\partial P^n}{\partial x_i}
+	\end{equation}
+	
+	\framebreak
+	
+	\begin{align}
+		\frac{ 3 u_i^n - 4 u_i^{n-1} + u_i^{n-2} }{ 2 \timestep } = - N (u_i^n) + L(u_i^n) &- \frac{\delta P^n}{\delta x_i} = \text{RHS}(u_i^n) \\
+		\frac{ 3 u_i^n - 3 u_i^{n-1} - u_i^{n-1} + u_i^{n-2} }{ 2 \timestep } &= \text{RHS}(u_i^n) \\
+		\frac{3}{2 \timestep} \left( u_i^n - u_i^{n-1} \right) - \frac{1}{2 \timestep} \left( u_i^{n-1} - u_i^{n-2} \right) &= \text{RHS}(u_i^n)
+	\end{align}
+	
+	Define a function $F$ such that:
+	\begin{equation}
+		F(u_i^n) = \text{RHS}(u_i^n) - \frac{3}{2 \timestep} \left( u_i^n - u_i^{n-1} \right) + \frac{1}{2 \timestep} \left( u_i^{n-1} - u_i^{n-2} \right)
+	\end{equation}
+	
+	Notice that:
+	\begin{equation}
+		F(u_i^n) = 0
+	\end{equation}
+	
+	\framebreak
+	
+	Consider an approximation $\hat{u}_i$ such that:
+	\begin{align}
+		\hat{u}_i &= u_i^*(\mathbf{x}, t_n + \timestep) \\
+		u_i^*(\mathbf{x}, t_n) &= u_i(\mathbf{x}, t_n)
+	\end{align}
+	
+	4th-order Runge-Kutta scheme with pseudo time $\tau$:
+	\begin{enumerate}
+		\item \emph{Start by assigning:}
+			\begin{equation}
+				u_i^*(\mathbf{x}, t_n) = u_i(\mathbf{x}, t_n)
+			\end{equation}
+		\item \emph{The following loop is repeated until:}
+			\begin{equation}
+				\mid u_i^*(\mathbf{x}, t_n) - \hat{u}_i \mid < \epsilon, \qquad \epsilon << 1
+			\end{equation}
+			
+			\begin{enumerate}
+				\item Let us use a notation $\hat{u}_i^k$, such that:
+					\begin{align}
+						\hat{u}_i^1 &= u_i^*(\mathbf{x}, t_n) \\
+						\hat{u}_i^4 &= u_i^*(\mathbf{x}, t_n + \timestep)
+					\end{align}
+				\item Calculate $F(\hat{u}_i^k)$:
+					\begin{equation}
+						F(\hat{u}_i^k) = \text{RHS}(\hat{u}_i^k) - \frac{3}{2 \timestep} \left( \hat{u}_i^k - u_i^{n-1} \right) + \frac{1}{2 \timestep} \left( u_i^{n-1} - u_i^{n-2} \right)
+					\end{equation}
+				\item Runge-Kutta advance:
+					\begin{align}
+						\hat{u}_i^k &= u_i^*(\mathbf{x}, t_n) + \alpha \left( \kappa \timestep \right) F(\hat{u}_i^k) \qquad k = 2,3,4 \\
+					\end{align}
+			\end{enumerate}
+	\end{enumerate}
+	
+\end{frame}
+% |================================================================================================|
+% |                                        Frame ends                                              |
+% |================================================================================================|
+
+% |================================================================================================|
+% |                                       Frame starts                                             |
+% |================================================================================================|
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Viscous Terms}{CDS2 Scheme}
+	
+	Now let us find the expression for the finite difference operators in Eq.(\ref{eq:viscous_terms}) and Eq.(\ref{eq:convective_terms}). \\
+	
+	First, consider the Viscous term (\ref{eq:viscous_terms}) as follows: \begin{equation}
+		L (u_i) = \frac{1}{\ren} \frac{\partial^2 u_i}{\partial x_j \partial x_j}
+	\end{equation}
+	
+	For a 2 dimensional coordinate system, one has the expression such that:
+	\\
+	In x-direction: \begin{equation}
+		L_x (u) = \frac{1}{\ren} \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right)
+	\end{equation}
+	
+	In y-direction: \begin{equation}
+		L_y (v) = \frac{1}{\ren} \left( \frac{\partial^2 v}{\partial x^2} + \frac{\partial^2 v}{\partial y^2} \right)
+	\end{equation}
+	
+	\framebreak
+	
+	The second derivative at an arbitrary point $(i, j)$ is approximated by the second central difference: \begin{align}
+		\frac{\partial^2 u_{i,j}}{\partial x^2} &= \frac{u_{i+1,j} - 2 u_{i,j} + u_{i-1,j}}{\Delta x^2} \\
+		\frac{\partial^2 u_{i,j}}{\partial y^2} &= \frac{u_{i,j+1} - 2 u_{i,j} + u_{i,j-1}}{\Delta y^2}
+	\end{align}
+	
+	and: \begin{align}
+		\frac{\partial^2 v_{i,j}}{\partial x^2} &= \frac{v_{i+1,j} - 2 v_{i,j} + v_{i-1,j}}{\Delta x^2} \\
+		\frac{\partial^2 v_{i,j}}{\partial y^2} &= \frac{v_{i,j+1} - 2 v_{i,j} + v_{i,j-1}}{\Delta y^2}
+	\end{align}
+	
+\end{frame}
+% |================================================================================================|
+% |                                        Frame ends                                              |
+% |================================================================================================|
+
+% |================================================================================================|
+% |                                       Frame starts                                             |
+% |================================================================================================|
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Convective Terms}{QUICK Scheme}
+	
+	For inner nodes:
+	\begin{equation}
+		\begin{split}
+			F &= um \left[ 1/8 * \left( -U_{i+2} - 2 U_{i+1} + 3 U_{i} \right) + U_{i+1} \right] \\
+			&+ up \left[ 1/8 * \left( -U_{i-1} - 2 U_{i} + 3 U_{i+1} \right) + U_{i} \right]
+		\end{split}
+	\end{equation}
+	
+	For begin node ($i=1$):
+	\begin{equation}
+		\begin{split}
+			F &= um \left[ 1/8 * \left( -U_{i+2} - 2 U_{i+1} + 3 U_{i} \right) + U_{i+1} \right] \\
+			&+ up \left[ 1/8 * \left( -U_{i} - 2 U_{i} + 3 U_{i+1} \right) + U_{i} \right]
+		\end{split}
+	\end{equation}
+	
+	For end node ($i=N$):
+	\begin{equation}
+		\begin{split}
+			F &= um \left[ 1/8 * \left( -U_{i+1} - 2 U_{i+1} + 3 U_{i} \right) + U_{i+1} \right] \\
+			&+ up \left[ 1/8 * \left( -U_{i-1} - 2 U_{i} + 3 U_{i+1} \right) + U_{i} \right]
+		\end{split}
+	\end{equation}
+	
+\end{frame}
+% |================================================================================================|
+% |                                        Frame ends                                              |
+% |================================================================================================|
+
+% |================================================================================================|
+% |                                       Frame starts                                             |
+% |================================================================================================|
+\begin{frame}[allowframebreaks, allowdisplaybreaks, t, fragile]{Methodology}
+	\framesubtitle{Benchmark Problems}
+	
+	2D Taylor-Green vortex is a classic benchmark problem which solution is a periodic array of vortices, that repeats itself in the $x$- and $y$-directions with a periodic length $L$:
+	\begin{align}
+		u(x,y,t) &= u_0 \sin(kx) \cos(ky) f(t) \\
+		v(x,y,t) &= - u_0 \cos(kx) \sin(ky) f(t) \\
+		p &= \frac{\rho u_0^2}{4} f(t)^2 \left[ \cos(2kx) + \cos(2ky) \right] \\
+		f(t) &= \exp{(-2 \nu k^2 t)} \\
+		k &= \frac{2\pi}{L}
+	\end{align}
+	
+\end{frame}
+% |================================================================================================|
+% |                                        Frame ends                                              |
+% |================================================================================================|
+
+% |================================================================================================|
+% |                                       Frame starts                                             |
+% |================================================================================================|
+\begin{frame}{Try it out!}
+
+  \begin{block}{Get the source of code from}
+
+  \begin{center}\url{https://github.com/milk-white-way/AMRESSIF}\end{center}
+
+  \end{block}
+  
+  The code \emph{itself} is licensed under a
+  \href{https://creativecommons.org/licenses/by-nc/4.0/}{Creative Commons
+  Attribution-NonCommercial 4.0 International License}.
+
+  \begin{center}\ccbync\end{center}
+
+\end{frame}
+% |================================================================================================|
+% |                                        Frame ends                                              |
+% |================================================================================================|
+
+\end{document}

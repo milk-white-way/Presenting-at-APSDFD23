@@ -1,0 +1,12 @@
+\frametitle{Methodology}
+\framesubtitle{Benchmark Problems}
+	
+	2D Taylor-Green vortex is a classic benchmark problem which solution is a periodic array of vortices, that repeats itself in the $x$- and $y$-directions with a periodic length $L$:
+	\begin{align}
+		u(x,y,t) &= u_0 \sin(kx) \cos(ky) f(t) \\
+		v(x,y,t) &= - u_0 \cos(kx) \sin(ky) f(t) \\
+		p &= \frac{\rho u_0^2}{4} f(t)^2 \left[ \cos(2kx) + \cos(2ky) \right] \\
+		f(t) &= \exp{(-2 \nu k^2 t)} \\
+		k &= \frac{2\pi}{L}
+	\end{align}
+	
